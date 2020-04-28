@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cloudviewserver.dao.PhotoDao">
+
+    <resultMap type="com.example.cloudviewserver.entity.Photo" id="PhotoMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="date" column="date" jdbcType="OTHER"/>
+        <result property="location" column="location" jdbcType="VARCHAR"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="PhotoMap">
+        select
+          id, date, location, path
+        from cloudview.photo
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="PhotoMap">
+        select
+          id, date, location, path
+        from cloudview.photo
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="PhotoMap">
+        select
+          id, date, location, path
+        from cloudview.photo
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="date != null">
+                and date = #{date}
+            </if>
+            <if test="location != null and location != ''">
+                and location = #{location}
+            </if>
+            <if test="path != null and path != ''">
+                and path = #{path}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into cloudview.photo(date, location, path)
+        values (#{date}, #{location}, #{path})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update cloudview.photo
+        <set>
+            <if test="date != null">
+                date = #{date},
+            </if>
+            <if test="location != null and location != ''">
+                location = #{location},
+            </if>
+            <if test="path != null and path != ''">
+                path = #{path},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from cloudview.photo where id = #{id}
+    </delete>
+
+    <!-- 通过uid查找photo-->
+    <select id="queryByUid" parameterType="int" resultType="Photo">
+        select * from photo,photomapper where photo.id = photomapper.pid
+        and photomapper.uid = #{id}
+    </select>
+    <select id="selectAll"  resultType="Photo">
+        select * from photo
+    </select>
+
+</mapper>
