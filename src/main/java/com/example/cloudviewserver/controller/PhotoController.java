@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -116,9 +117,10 @@ public class PhotoController {
                         return Result.success("上传文件成功,文件路径为：" + dest.getAbsolutePath());
                     }
                 } else {
+                    SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd_HHmmss");
                     //给文件已规定好的日期格式重新命名
                     String fileNewName = "IMG_"
-                            + new SimpleDateFormat("YYYYMMdd_HHmmss")
+                            + sdf.format(new Date())
                             + "."
                             + FilenameUtils.getExtension(originalFilename);
                     File dest = new File(path, fileNewName);
