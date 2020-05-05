@@ -28,6 +28,18 @@ public class Photo implements Serializable {
     */
     private String path;
 
+    /**
+     * 是否有人脸，0无，1有
+     */
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public Integer getId() {
         return id;

@@ -33,7 +33,6 @@ public class UpdatePhotoTask {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-
             }
         }
 //        photoService.updatePhotoDateById(int id,Date date)

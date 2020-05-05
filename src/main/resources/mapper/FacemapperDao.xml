@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cloudviewserver.dao.FacemapperDao">
+
+    <resultMap type="com.example.cloudviewserver.entity.Facemapper" id="FacemapperMap">
+        <result property="cid" column="cid" jdbcType="INTEGER"/>
+        <result property="faceToken" column="face_token" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryByFaceToken" parameterType="String" resultMap="FacemapperMap">
+        select
+          cid, face_token
+        from cloudview.facemapper
+        where face_token = #{faceToken}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="FacemapperMap">
+        select
+          cid, face_token
+        from cloudview.facemapper
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="FacemapperMap">
+        select
+          cid, face_token
+        from cloudview.facemapper
+        <where>
+            <if test="cid != null">
+                and cid = #{cid}
+            </if>
+            <if test="faceToken != null and faceToken != ''">
+                and face_token = #{faceToken}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="" useGeneratedKeys="true">
+        insert into cloudview.facemapper(cid, face_token)
+        values (#{cid}, #{faceToken})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update cloudview.facemapper
+        <set>
+            <if test="cid != null">
+                cid = #{cid},
+            </if>
+        </set>
+        where  face_token= #{faceToken}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteByFaceToken" parameterType="String">
+        delete from cloudview.facemapper where  face_token= #{faceToken}
+    </delete>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cloudviewserver.dao.FaceDao">
+
+    <resultMap type="com.example.cloudviewserver.entity.Face" id="FaceMap">
+        <result property="faceToken" column="face_token" jdbcType="VARCHAR"/>
+        <result property="left" column="left" jdbcType="DOUBLE"/>
+        <result property="top" column="top" jdbcType="DOUBLE"/>
+        <result property="width" column="width" jdbcType="DOUBLE"/>
+        <result property="height" column="height" jdbcType="DOUBLE"/>
+        <result property="pid" column="pid" jdbcType="INTEGER"/>
+        <result property="rotation" column="rotation" jdbcType="INTEGER"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="FaceMap">
+        select
+          face_token, `left`, top, width, height, pid, rotation, path
+        from cloudview.face
+        where face_token = #{faceToken}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="FaceMap">
+        select
+          face_token, `left`, top, width, height, pid, rotation, path
+        from cloudview.face
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="FaceMap">
+        select
+          face_token, `left`, top, width, height, pid, rotation, path
+        from cloudview.face
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="faceToken">
+        insert into cloudview.face
+        values (#{faceToken},#{left}, #{top}, #{width}, #{height}, #{pid}, #{rotation}, #{path})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update cloudview.face
+        <set>
+            <if test="left != null">
+                `left` = #{left},
+            </if>
+            <if test="top != null">
+                top = #{top},
+            </if>
+            <if test="width != null">
+                width = #{width},
+            </if>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="pid != null">
+                pid = #{pid},
+            </if>
+            <if test="rotation != null">
+                rotation = #{rotation},
+            </if>
+            <if test="path != null and path != ''">
+                path = #{path},
+            </if>
+        </set>
+        where face_token = #{faceToken}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from cloudview.face where face_token = #{faceToken}
+    </delete>
+
+</mapper>
