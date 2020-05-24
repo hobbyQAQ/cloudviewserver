@@ -90,4 +90,13 @@
         select * from photo
     </select>
 
+<!--    通过cid查找photo-->
+    <select id="getPhotoByCid"  resultType="Photo">
+        SELECT photo.* FROM facemapper,face,photo,photomapper
+         where face.face_token = facemapper.face_token
+         and facemapper.cid = #{cid}
+         and photo.id = face.pid
+         and photo.id =photomapper.pid
+         and photomapper.uid = #{uid}
+    </select>
 </mapper>

@@ -62,4 +62,7 @@ public interface FaceDao {
      */
     int deleteById(String faceToken);
 
+    int deleteByPid(Integer pid);
+
+    Face queryByPid(Integer pid);
 }

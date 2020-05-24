@@ -26,6 +26,11 @@ public class PhotoServiceImpl implements PhotoService {
     private PhotomapperDao photomapperDao;
 
     @Override
+    public Result getPhotoByCid(int cid, int uid) {
+        return Result.success(photoDao.getPhotoByCid(cid,uid));
+    }
+
+    @Override
     public void insertPhotomapper(Photomapper photomapper) {
         this.photomapperDao.insert(photomapper);
     }

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
@@ -69,8 +70,13 @@ public class PhotoController {
         return photoService.getPhotoByUid(uid);
     }
 
+    /**
+     * 根据用户id获取用户照片
+     * @return
+     */
     @GetMapping("get")
-    public Result<List<Photo>> getPhoto(@RequestParam("user") Integer uid) {
+    public Result<List<Photo>> getPhoto(HttpSession session) {
+        int uid = 1;
         return photoService.getPhotoByUid(uid);
     }
 
@@ -156,7 +162,7 @@ public class PhotoController {
 
 
     /**
-     *
+     * 多文件上传
      * @param files
      * @param uid
      * @return
@@ -205,9 +211,44 @@ public class PhotoController {
         return Result.fail("上传失败");
     }
 
+    /**
+     * 删除照片
+     * @param pid 照片的id
+     * @param session 获取用户信息
+     * @return
+     */
+    @GetMapping("delete")
+    private Result delete(@RequestParam("pid")Integer pid, HttpSession session){
+        Photo photo = photoService.queryById(pid);
+        boolean b = photoService.deleteById(pid);
+        String path = null;
+        try {
+            path = ResourceUtils.getURL("classpath:").getPath() + photo.getPath();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        File file = new File(path);
+        boolean delete = file.delete();
+        if (photo.getType() == 1) {
+            Face face = faceService.queryByPid(pid);
+            boolean b1 = faceService.deleteByPid(pid);
+            facemapperService.deleteByFaceToken(face.getFaceToken());
+        }
+        return Result.success("删除成功");
+    }
+
+    @GetMapping("get/by/face")
+    private Result getPhotoByCharater(@RequestParam("cid") Integer cid,HttpSession session) {
+        int uid = 1;
+        //已有faceToken数据
+        //查询和此faceToken匹配的所有人脸的faceToken，得到一个List<String> faceTokens
+        //通过face表就可以查询到匹配人脸的所有相片
+        //直接faceMapper中取就好了
+        return  photoService.getPhotoByCid(cid, uid);
+    }
 
     /**
-     * 上传图片更新数据库
+     * 上传图片更新数据库、更新人脸库、更新人脸图片
      * @param absolutePath
      * @param id
      * @return
@@ -266,7 +307,7 @@ public class PhotoController {
                     facemapperService.insert(new Facemapper(charater.getId(),face.getFaceToken()));
                 }
                 for (int i = 0; i < face_list1.size(); i++) {
-                    // TODO: 2020/5/5 match face
+                    // match face
                     MatchResult matchResult = faceService.matchFace(face.getFaceToken(), face_list1.get(i).getFace_token());
 
                     if (matchResult.getScore() >= 80) {

@@ -60,4 +60,5 @@ public interface PhotoService {
 
     Result<List<Photo>> getPhotoByUid(Integer uid);
 
+    Result getPhotoByCid(int cid, int uid);
 }

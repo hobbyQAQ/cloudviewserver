@@ -39,7 +39,7 @@ class CloudviewserverApplicationTests {
     void contextLoads() {
 
     }
-    @Test
+
     void cutTest(){
         List<Face> faces = faceDao.queryAll();
         for (int i = 0; i < faces.size(); i++) {

@@ -76,4 +76,13 @@
         delete from cloudview.face where face_token = #{faceToken}
     </delete>
 
+    <!--通过pid删除-->
+    <delete id="deleteByPid" parameterType="Integer">
+        delete from cloudview.face where pid = #{pid}
+    </delete>
+
+
+    <select id="queryByPid" parameterType="int">
+        select * from cloudview.face where pid = #{pid}
+    </select>
 </mapper>

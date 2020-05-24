@@ -146,3 +146,217 @@ http://192.168.0.2（目前没有服务器本地测试用的）
 }
 ```
 
+
+
+#### 获取所有人脸图片
+
+- 方法：get
+
+- 接口：/face/get/all
+
+- 参数：uid（用户id）
+
+- 返回
+
+```
+{
+    "success": true,
+    "msg": "OK",
+    "data": [
+        {
+            "faceToken": "076d0f505c694f3b09a5a66021a97ca9",
+            "left": 1571.0,
+            "top": 2012.0,
+            "width": 100.0,
+            "height": 100.0,
+            "pid": 7,
+            "rotation": -88,
+            "path": "/face/1/076d0f505c694f3b09a5a66021a97ca9.jpg"
+        },
+        {
+            "faceToken": "4562220837188aa5d1fa3d270bb70fcf",
+            "left": 930.0,
+            "top": 1941.0,
+            "width": 97.0,
+            "height": 94.0,
+            "pid": 12,
+            "rotation": -110,
+            "path": "/face/1/4562220837188aa5d1fa3d270bb70fcf.jpg"
+        },
+        {
+            "faceToken": "5c734e21f81795cb3061bd4c7722d691",
+            "left": 196.0,
+            "top": 175.0,
+            "width": 66.0,
+            "height": 61.0,
+            "pid": 11,
+            "rotation": -4,
+            "path": "/face/1/5c734e21f81795cb3061bd4c7722d691.jpg"
+        },
+        {
+            "faceToken": "845a72cea366eaf1be04ec12d3f9715e",
+            "left": 1737.0,
+            "top": 1225.0,
+            "width": 102.0,
+            "height": 104.0,
+            "pid": 13,
+            "rotation": -8,
+            "path": "/face/1/845a72cea366eaf1be04ec12d3f9715e.jpg"
+        },
+        {
+            "faceToken": "9c021c9db96386974de011f6598aae7d",
+            "left": 70.0,
+            "top": 2168.0,
+            "width": 51.0,
+            "height": 45.0,
+            "pid": 3,
+            "rotation": 5,
+            "path": "/face/1/9c021c9db96386974de011f6598aae7d.jpg"
+        },
+        {
+            "faceToken": "aa403dd946a340f7755dca0d9542a04d",
+            "left": 1497.0,
+            "top": 2321.0,
+            "width": 172.0,
+            "height": 163.0,
+            "pid": 9,
+            "rotation": -122,
+            "path": "/face/1/aa403dd946a340f7755dca0d9542a04d.jpg"
+        },
+        {
+            "faceToken": "bb7f2d923c1ab0e2879fc2d32c0ed41d",
+            "left": 1430.0,
+            "top": 1211.0,
+            "width": 96.0,
+            "height": 110.0,
+            "pid": 13,
+            "rotation": 0,
+            "path": "/face/1/bb7f2d923c1ab0e2879fc2d32c0ed41d.jpg"
+        },
+        {
+            "faceToken": "c1e12a6d7f8c399a9a33a7a594b419c1",
+            "left": 1831.0,
+            "top": 1869.0,
+            "width": 465.0,
+            "height": 451.0,
+            "pid": 1,
+            "rotation": 0,
+            "path": "/face/1/c1e12a6d7f8c399a9a33a7a594b419c1.jpg"
+        },
+        {
+            "faceToken": "f278f3402a3aa9e916083d0775c0f696",
+            "left": 1507.0,
+            "top": 2151.0,
+            "width": 493.0,
+            "height": 486.0,
+            "pid": 2,
+            "rotation": -6,
+            "path": "/face/1/f278f3402a3aa9e916083d0775c0f696.jpg"
+        }
+    ]
+}
+```
+
+
+
+#### 获取人物的所有照片
+
+- 方法：get
+
+- 接口：/photo/getbyface
+
+- 参数：faceToken
+
+- 返回
+
+```
+{
+    "success": true,
+    "msg": "获取成功",
+    "data": null
+}
+```
+
+
+
+#### 删除照片
+
+- 方法：get
+
+- 接口：/photo/delete
+
+- 参数：uid
+
+  ​			pid
+
+- 返回
+
+```
+{
+    "success": true,
+    "msg": "删除成功",
+    "data": null
+}
+```
+
+
+
+#### 修改人物的命名
+
+- 方法：get
+
+- 接口：/face/update/name
+
+- 参数：faceToken
+
+  ​			faceName
+
+- 返回
+
+```
+{
+    "success": true,
+    "msg": "修改成功",
+    "data": null
+}
+```
+
+
+
+
+
+#### 根据人脸获得相应的照片
+
+- 方法：get
+
+- 接口：/photo/get/by/face
+
+- 参数：cid
+
+- 返回
+
+```
+{
+    "success": true,
+    "msg": "OK",
+    "data": [
+        {
+            "id": 1,
+            "date": "2018-02-15T11:31:02.000+0000",
+            "location": "福建南平",
+            "path": "/static/1/IMG_20180215_193102.jpg",
+            "type": 1
+        },
+        {
+            "id": 2,
+            "date": "2018-02-15T11:15:37.000+0000",
+            "location": "上海",
+            "path": "/static/1/IMG_20180215_191537.jpg",
+            "type": 1
+        }
+    ]
+}
+```
+
+
+

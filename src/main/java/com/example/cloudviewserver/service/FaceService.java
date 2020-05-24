@@ -85,4 +85,10 @@ public interface FaceService {
     FaceListResult getFaceListFromBaidu();
 
     MatchResult matchFace(String faceToken, String face_token);
+
+    boolean deleteByPid(Integer pid);
+
+    Face queryByPid(Integer pid);
+
+    List<Face> queryAll();
 }

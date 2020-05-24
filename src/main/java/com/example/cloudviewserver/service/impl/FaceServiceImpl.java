@@ -29,6 +29,19 @@ public class FaceServiceImpl implements FaceService {
     private DetectResult detectResult;
     private FaceListResult faceListResult;
 
+    @Override
+    public Face queryByPid(Integer pid) {
+        return faceDao.queryByPid(pid);
+    }
+
+    @Override
+    public boolean deleteByPid(Integer pid) {
+        if (faceDao.deleteByPid(pid) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 通过ID查询单条数据
      *
@@ -39,6 +52,11 @@ public class FaceServiceImpl implements FaceService {
     public Result queryById(String faceToken) {
         Face face = this.faceDao.queryById(faceToken);
         return Result.success(face);
+    }
+
+    @Override
+    public List<Face> queryAll() {
+        return faceDao.queryAll();
     }
 
     /**
