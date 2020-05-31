@@ -136,7 +136,7 @@ public class FaceServiceImpl implements FaceService {
         FaceListResult faceListResult = null;
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("user_id", "wuyubin");
+            map.put("user_id", "user01");
             map.put("group_id", "1");
 
             String param = GsonUtils.toJson(map);
@@ -144,8 +144,8 @@ public class FaceServiceImpl implements FaceService {
             // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
             String accessToken = Constants.ACCESS_TOKEN;
             String result = HttpUtil.post(url, accessToken, "application/json", param);
-            faceListResult = (FaceListResult) JSONUtils.parse(result);
             System.out.println(result);
+            faceListResult = GsonUtils.fromJson(result,FaceListResult.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

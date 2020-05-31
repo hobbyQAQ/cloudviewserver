@@ -8,6 +8,7 @@ import com.example.cloudviewserver.service.FaceService;
 import com.example.cloudviewserver.service.FacemapperService;
 import com.example.cloudviewserver.utils.Result;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,6 +24,9 @@ import java.util.List;
 @RestController
 @RequestMapping("face")
 public class FaceController {
+
+    @Value("${web.upload-path}")
+    private String baseUploadPath;
     /**
      * 服务对象
      */
@@ -63,7 +67,8 @@ public class FaceController {
     /**
      * 用户更新脸的名字
      * @param faceName
-     * @return
+     * @return target/classes/face/1/845a72cea366eaf1be04ec12d3f9715e.jpg
+     * target/classes/static/1/IMG_20171114_101441.jpg
      */
     @GetMapping("update/name")
     public Result updateFaceName(@RequestParam("faceName") String faceName, @RequestParam("faceToken") String faceToken){

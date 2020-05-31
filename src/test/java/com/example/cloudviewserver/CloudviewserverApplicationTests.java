@@ -1,6 +1,5 @@
 package com.example.cloudviewserver;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.example.cloudviewserver.dao.FaceDao;
 import com.example.cloudviewserver.dao.PhotoDao;
 import com.example.cloudviewserver.entity.Face;
@@ -12,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.bcel.Const;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.ResourceUtils;
@@ -40,14 +40,39 @@ class CloudviewserverApplicationTests {
 
     }
 
-    void cutTest(){
+    void carLicense() {
+        String url = "https://aip.baidubce.com/rest/2.0/ocr/v1/license_plate";
+        try {
+            // 本地文件路径
+            String filePath = "C:\\Users\\94244\\Desktop\\timg.jpg";
+            byte[] imgData = FileUtil.readFileByBytes(filePath);
+            String imgStr = Base64Util.encode(imgData);
+            String imgParam = URLEncoder.encode(imgStr, "UTF-8");
+
+            String param = "image=" + imgParam;
+
+            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+            String accessToken = Constants.ACCESS_TOKEN;
+
+            String result = HttpUtil.post(url, accessToken, param);
+            System.out.println(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    void cutTest() {
         List<Face> faces = faceDao.queryAll();
         for (int i = 0; i < faces.size(); i++) {
             Face face = faces.get(i);
             Photo photo = photoDao.queryById(face.getPid());
-            String path = "D:/cloudviewserver/target/classes";
+            String path = "D:/yunyin/upload/";
             String imgPath = path + photo.getPath();
             BufferedImage srcBfi = PhotoUtil.file2img(imgPath);
+
 //            Graphics2D g = srcBfi.createGraphics();
 //            g.setColor(Color.BLUE);//画笔颜色
 //            g.setStroke(new BasicStroke(5.0f));
@@ -55,17 +80,24 @@ class CloudviewserverApplicationTests {
 //                    face.getTop().intValue(),
 //                    face.getWidth().intValue(),
 //                    face.getHeight().intValue());
+
+
             BufferedImage cutImage = PhotoUtil.img_tailor(srcBfi
-                    ,face.getLeft().intValue() - face.getWidth().intValue()/5
-                    ,face.getTop().intValue() - face.getHeight().intValue()
-                    ,face.getWidth().intValue() * 7 / 5
-                    ,2*face.getHeight().intValue());
+                    , face.getLeft().intValue() * 19 / 20
+                    , face.getTop().intValue() * 19 / 20
+                    , face.getWidth().intValue() * 5 / 2
+                    , face.getHeight().intValue() * 5 / 2);
             if (face.getRotation() <= -80) {
+//                cutImage = PhotoUtil.img_tailor(srcBfi
+//                        ,face.getLeft().intValue()
+//                        ,face.getTop().intValue()
+//                        ,face.getWidth().intValue() * 5/2
+//                        ,face.getHeight().intValue()*5/2);
                 //小于-80旋转回来
-                cutImage = PhotoUtil.img_rotation(cutImage, 90);
+//                cutImage = PhotoUtil.img_rotation(cutImage, 90);
             }
-            String destPath = "D:/cloudviewserver/target/classes/face/1/"+face.getFaceToken()+".jpg";
-            PhotoUtil.img2file(cutImage,"jpg",destPath);
+            String destPath = "D:/yunyin/upload/face/1/" + face.getFaceToken() + ".jpg";
+            PhotoUtil.img2file(cutImage, "jpg", destPath);
         }
 
 
@@ -84,10 +116,10 @@ class CloudviewserverApplicationTests {
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/detect";
         List<Photo> photos = photoDao.selectAll();
         try {
-            String path = "D:/cloudviewserver/target/classes";
+            String path = "D:\\yunyin\\upload\\photo\\1";
             for (int i = 0; i < photos.size(); i++) {
                 Photo photo = photos.get(i);
-                String filePath = path  + photos.get(i).getPath();
+                String filePath = path + photos.get(i).getPath();
 //                Thumbnails.of(filePath)
 //                        .scale(1f)
 //                        .outputQuality(0.8f)
@@ -104,26 +136,26 @@ class CloudviewserverApplicationTests {
                 String accessToken = Constants.ACCESS_TOKEN;
                 String result = HttpUtil.post(url, accessToken, "application/json", param);
 
-                DetectResult detectResult = GsonUtils.fromJson(result,DetectResult.class);
+                DetectResult detectResult = GsonUtils.fromJson(result, DetectResult.class);
                 if (detectResult.getError_code() == 0) {
                     List<DetectResult.ResultBean.FaceListBean> face_list = detectResult.getResult().getFace_list();
-                    System.out.println("pid为"+photo.getId()+"的相片有"+detectResult.getResult().getFace_num()+"张人脸");
+                    System.out.println("pid为" + photo.getId() + "的相片有" + detectResult.getResult().getFace_num() + "张人脸");
                     for (int j = 0; j < face_list.size(); j++) {
                         DetectResult.ResultBean.FaceListBean faceListBean = face_list.get(j);
-                        System.out.println("face_token"+j+"==="+ faceListBean.getFace_token());
+                        System.out.println("face_token" + j + "===" + faceListBean.getFace_token());
                         Face face = new Face();
                         face.setFaceToken(faceListBean.getFace_token());
-                        face.setHeight((double)faceListBean.getLocation().getHeight());
-                        face.setWidth((double)faceListBean.getLocation().getWidth());
-                        face.setLeft((double)faceListBean.getLocation().getLeft());
-                        face.setTop((double)faceListBean.getLocation().getTop());
+                        face.setHeight((double) faceListBean.getLocation().getHeight());
+                        face.setWidth((double) faceListBean.getLocation().getWidth());
+                        face.setLeft((double) faceListBean.getLocation().getLeft());
+                        face.setTop((double) faceListBean.getLocation().getTop());
                         face.setPid(photo.getId());
                         face.setRotation(faceListBean.getLocation().getRotation());
                         int res = faceDao.insert(face);
                     }
                     photo.setType(1);
-                }else{
-                    System.out.println("pid为"+photo.getId()+"的相片没有人脸");
+                } else {
+                    System.out.println("pid为" + photo.getId() + "的相片没有人脸");
                     photo.setType(0);
                 }
 //                photoDao.update(photo);
@@ -134,16 +166,15 @@ class CloudviewserverApplicationTests {
     }
 
 
-
     @Test
     public void faceAddAll() {
         // 请求url
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add";
         List<Photo> photos = photoDao.selectAll();
         try {
-            String path = "D:/cloudviewserver/target/classes";
+            String path = "D:\\yunyin\\upload\\photo\\1";
             for (int i = 0; i < photos.size(); i++) {
-                String filePath = path  + photos.get(i).getPath();
+                String filePath = path + photos.get(i).getPath();
                 System.out.println(i + "===>" + filePath);
                 String image = Base64ImageUtil.GetImageStrFromPath(filePath);
                 Map<String, Object> map = new HashMap<>();
@@ -208,7 +239,7 @@ class CloudviewserverApplicationTests {
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/face/getlist";
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("user_id", "wuyubin");
+            map.put("user_id", "user01");
             map.put("group_id", "1");
 
             String param = GsonUtils.toJson(map);

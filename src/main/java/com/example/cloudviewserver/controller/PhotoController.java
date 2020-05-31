@@ -13,7 +13,7 @@ import com.example.cloudviewserver.utils.Result;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.util.ResourceUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
+// TODO: 2020/5/24 文件存储问题 到底存在哪个目录下  target 还是 webapp
 /**
  * (Photo)表控制层
  *
@@ -37,6 +37,9 @@ import java.util.List;
 @RestController
 @RequestMapping("photo")
 public class PhotoController {
+
+    @Value("${web.upload-path}")
+    private String baseUploadPath;
 
     /**
      * 服务对象
@@ -52,6 +55,7 @@ public class PhotoController {
 
     @Resource
     private FacemapperService facemapperService;
+    private Photo newPhoto;
 
 
     /**
@@ -90,7 +94,7 @@ public class PhotoController {
     public Result download(@RequestParam("pid") Integer pid, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
 
         Photo photo = photoService.queryById(pid);
-        String realPath = ResourceUtils.getURL("classpath:").getPath() + photo.getPath();
+        String realPath = baseUploadPath + photo.getPath();
         FileInputStream is = new FileInputStream(new File(realPath));
         response.setHeader("content-disposition","attachment;fileName="+ URLEncoder.encode(PhotoUtil.Path2Name(photo.getPath(),1),"UTF-8"));
         ServletOutputStream os = null;
@@ -124,7 +128,8 @@ public class PhotoController {
             String originalFilename = file.getOriginalFilename();
             if (FilenameUtils.isExtension(originalFilename, new String[]{"jpeg", "jpg", "png"})) {
                 //以用户id命名的路径
-                String path = ResourceUtils.getURL("classpath:").getPath() + "/static/" + uid;
+                String path = baseUploadPath + "photo/"+ uid;
+                System.out.println("存储路径："+ path);
                 File dir = new File(path);
                 if (!dir.exists()) {
                     dir.mkdir();
@@ -136,6 +141,8 @@ public class PhotoController {
                     //上传成功后把数据保存到数据库
                     if (updateDatabase(dest.getAbsolutePath(), uid)) {
                         return Result.success("上传文件成功,文件路径为：" + dest.getAbsolutePath());
+                    }else {
+                        return Result.fail("上传失败");
                     }
                 } else {
                     SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd_HHmmss");
@@ -149,6 +156,8 @@ public class PhotoController {
                     //上传成功后把数据保存到数据库
                     if (updateDatabase(dest.getAbsolutePath(), uid)) {
                         return Result.success("上传文件成功,文件路径为：" + dest.getAbsolutePath());
+                    }else {
+                        return Result.fail("上传失败");
                     }
 
                 }
@@ -157,27 +166,27 @@ public class PhotoController {
             }
             //判断文件后缀
         }
-        return Result.fail("上传失败");
     }
 
 
     /**
      * 多文件上传
      * @param files
-     * @param uid
+     * @param session
      * @return
      */
     @PostMapping("uploads")
-    private Result uploads(@RequestParam("files")List<MultipartFile> files,@RequestParam("uid")Integer uid) throws IOException {
+    private Result uploads(@RequestParam("files")List<MultipartFile> files,@RequestParam("uid") Integer uid,HttpSession session) throws IOException {
         if (files.size() == 0) {
             return Result.fail("文件为空");
         }
+        int picNum = 0;
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
             String originalFilename = file.getOriginalFilename();
             if (FilenameUtils.isExtension(originalFilename, new String[]{"jpeg", "jpg", "png"})) {
                 //以用户id命名的路径
-                String path = ResourceUtils.getURL("classpath:").getPath() + "/static/" + uid;
+                String path = baseUploadPath + "photo/" + uid;
                 File dir = new File(path);
                 if (!dir.exists()) {
                     dir.mkdir();
@@ -186,29 +195,30 @@ public class PhotoController {
                     //文件格式已经匹配了，直接存到对应用户id命名的文件夹内
                     File dest = new File(path, originalFilename);
                     file.transferTo(dest);
-
                     //上传成功后把数据保存到数据库
                     if (updateDatabase(dest.getAbsolutePath(), uid)) {
-                        return Result.success("上传文件成功,文件路径为：" + dest.getAbsolutePath());
+                        picNum ++;
                     }
                 } else {
                     //给文件已规定好的日期格式重新命名
+                    SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd_HHmmss");
+                    // TODO: 2020/5/31 有问题
                     String fileNewName = "IMG_"
-                            + new SimpleDateFormat("YYYYMMdd_HHmmss")
+                            + sdf.format(new Date())
                             + "."
                             + FilenameUtils.getExtension(originalFilename);
                     File dest = new File(path, fileNewName);
                     file.transferTo(dest);
                     //上传成功后把数据保存到数据库
                     if (updateDatabase(dest.getAbsolutePath(), uid)) {
-                        return Result.success("上传文件成功,文件路径为：" + dest.getAbsolutePath());
+                        picNum ++;
                     }
                 }
             } else {
-                return Result.fail("不支持的文件类型");
+                return Result.fail("含有不支持的文件类型");
             }
         }
-        return Result.fail("上传失败");
+        return Result.success("成功上传"+picNum+"张照片");
     }
 
     /**
@@ -218,20 +228,20 @@ public class PhotoController {
      * @return
      */
     @GetMapping("delete")
-    private Result delete(@RequestParam("pid")Integer pid, HttpSession session){
+    private Result delete(@RequestParam("pid")Integer pid,@RequestParam("uid") Integer uid, HttpSession session){
         Photo photo = photoService.queryById(pid);
         boolean b = photoService.deleteById(pid);
         String path = null;
         try {
-            path = ResourceUtils.getURL("classpath:").getPath() + photo.getPath();
-        } catch (FileNotFoundException e) {
+            path = baseUploadPath + photo.getPath();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         File file = new File(path);
         boolean delete = file.delete();
         if (photo.getType() == 1) {
             Face face = faceService.queryByPid(pid);
-            boolean b1 = faceService.deleteByPid(pid);
+            faceService.deleteByPid(pid);
             facemapperService.deleteByFaceToken(face.getFaceToken());
         }
         return Result.success("删除成功");
@@ -262,6 +272,7 @@ public class PhotoController {
             photo = new Photo();
             photo.setPath(PhotoUtil.getPath(absolutePath));
             photo.setType(1);
+            newPhoto = photoService.insert(photo);
             List<DetectResult.ResultBean.FaceListBean> face_list = detectResult.getResult().getFace_list();
             for (int j = 0; j < face_list.size(); j++) {
                 DetectResult.ResultBean.FaceListBean faceListBean = face_list.get(j);
@@ -272,14 +283,14 @@ public class PhotoController {
                 face.setWidth((double)faceListBean.getLocation().getWidth());
                 face.setLeft((double)faceListBean.getLocation().getLeft());
                 face.setTop((double)faceListBean.getLocation().getTop());
-                face.setPid(photo.getId());
+                face.setPid(newPhoto.getId());
                 face.setRotation(faceListBean.getLocation().getRotation());
-                faceService.insert(face);
-                //图像文件过大，进行压缩
+                //图像文件过大，进行压缩 ,
+                // 目前采用android端压缩
                 try {
                     Thumbnails.of(absolutePath)
                             .scale(1f)
-                            .outputQuality(0.8f)
+                            .outputQuality(0.5f)
                             .toFile(absolutePath);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -287,54 +298,69 @@ public class PhotoController {
                 //将人脸图片裁剪下来并保存
                 BufferedImage srcBfi = PhotoUtil.file2img(absolutePath);
                 BufferedImage bufferedImage = PhotoUtil.img_tailor(srcBfi
-                    ,face.getLeft().intValue()
-                    ,face.getTop().intValue()
-                    ,face.getWidth().intValue()
-                    ,face.getHeight().intValue());
-                //如果有旋转角，将脸旋转回来
+                        ,face.getLeft().intValue()*19/20
+                        ,face.getTop().intValue()*19/20
+                        ,face.getWidth().intValue()*5/2
+                        ,face.getHeight().intValue()*5/2);
                 if (face.getRotation() < -80) {
-                    srcBfi = PhotoUtil.img_rotation(srcBfi, 90);
+                    bufferedImage = PhotoUtil.img_tailor(srcBfi
+                            ,face.getLeft().intValue()*19/20
+                            ,face.getTop().intValue()*19/20
+                            ,face.getWidth().intValue()*5/2
+                            ,face.getHeight().intValue()*5/2);
+//                    bufferedImage = PhotoUtil.img_rotation(bufferedImage, 90);
+                }else if(face.getRotation() > 80){
+                    bufferedImage = PhotoUtil.img_rotation(bufferedImage, -90);
                 }
+
+                //如果有旋转角，将脸旋转回来
                 String faceToken = face.getFaceToken();
-                String destPath = "D:/cloudviewserver/target/classes/face/1/"+faceToken+".jpg";
-                PhotoUtil.img2file(srcBfi,"jpg",destPath);
+                String destPath = baseUploadPath+"face/"+id+"/"+faceToken+".jpg";
+                face.setPath(PhotoUtil.getFacePath(destPath));
+                PhotoUtil.img2file(bufferedImage,"jpg",destPath);
+                faceService.insert(face);
                 //将人脸上传至人脸库
                 FaceListResult faceListFromBaidu = faceService.getFaceListFromBaidu();
-                List<FaceListResult.FaceListBean> face_list1 = faceListFromBaidu.getFace_list();
+                if (faceListFromBaidu == null) {
+                    return false;
+                }
+                List<FaceListResult.ResultBean.FaceListBean> face_list1 = faceListFromBaidu.getResult().getFace_list();
                 if (face_list1.size() == 0){
                     Charater charater = new Charater();
                     charater = charaterService.insert(charater);
                     facemapperService.insert(new Facemapper(charater.getId(),face.getFaceToken()));
                 }
+                int theSameFace = -1;
                 for (int i = 0; i < face_list1.size(); i++) {
                     // match face
                     MatchResult matchResult = faceService.matchFace(face.getFaceToken(), face_list1.get(i).getFace_token());
-
                     if (matchResult.getScore() >= 80) {
-                        //如果有匹配的人脸，则把人脸和相同人脸的人物记录到faceMapper
-                        Facemapper facemapper = facemapperService.queryByFaceToken(face_list1.get(i).getFace_token());
-                        if (facemapper != null) {
-                            Facemapper facemapper1 = new Facemapper(facemapper.getCid(),face.getFaceToken());
-                        }else{
-                            System.err.println("查询失败，映射表中没有该人脸");
-                        }
-                    }else{
-                        //如果人脸库中没有相同人脸，则新建一个charater，把charater的id和face的facetoken记录到faceMapper中
-                        Charater charater = new Charater();
-                        charater = charaterService.insert(charater);
-                        facemapperService.insert(new Facemapper(charater.getId(), face.getFaceToken()));
+                        theSameFace = i;
+
                     }
                 }
-
-
+                if (theSameFace<0){
+                    //如果人脸库中没有相同人脸，则新建一个charater，把charater的id和face的facetoken记录到faceMapper中
+                    Charater charater = new Charater();
+                    charater = charaterService.insert(charater);
+                    facemapperService.insert(new Facemapper(charater.getId(), face.getFaceToken()));
+                }else{
+                    //如果有匹配的人脸，则把人脸和相同人脸的人物记录到faceMapper
+                    Facemapper facemapper = facemapperService.queryByFaceToken(face_list1.get(theSameFace).getFace_token());
+                    if (facemapper != null) {
+                        Facemapper newFacemapper = new Facemapper(facemapper.getCid(),face.getFaceToken());
+                    }else{
+                        System.err.println("查询失败，映射表中没有该人脸");
+                    }
+                }
             }
         }else{
             photo = new Photo();
             photo.setPath(PhotoUtil.getPath(absolutePath));
             photo.setType(0);
+            newPhoto = photoService.insert(photo);
         }
-        Photo insert = photoService.insert(photo);
-        Photomapper photomapper = new Photomapper(insert.getId(), id);
+        Photomapper photomapper = new Photomapper(newPhoto.getId(), id);
         photoService.insertPhotomapper(photomapper);
         return true;
     }
