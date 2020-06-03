@@ -1,6 +1,7 @@
 package com.example.cloudviewserver.service;
 
 import com.example.cloudviewserver.entity.Face;
+import com.example.cloudviewserver.entity.domain.AddFaceResult;
 import com.example.cloudviewserver.entity.domain.DetectResult;
 import com.example.cloudviewserver.entity.domain.FaceListResult;
 import com.example.cloudviewserver.entity.domain.MatchResult;
@@ -69,7 +70,7 @@ public interface FaceService {
      * @param filePath
      * @return 探测结果
      */
-    String faceAdd2Baidu(String filePath , Integer uid, Integer cid);
+    AddFaceResult faceAdd2Baidu(String filePath , Integer uid, Integer cid);
 
     /**
      * 更新到人脸库
@@ -86,9 +87,13 @@ public interface FaceService {
 
     MatchResult matchFace(String faceToken, String face_token);
 
+    AddFaceResult addFace(String path);
+
     boolean deleteByPid(Integer pid);
 
     Face queryByPid(Integer pid);
 
     List<Face> queryAll();
+
+    List<Face> getFaceListByCid(int cid);
 }

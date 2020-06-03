@@ -60,4 +60,10 @@
         delete from cloudview.charater where id = #{id}
     </delete>
 
+
+    <select id="getAll" resultMap="CharaterMap">
+        select
+          id, name
+        from cloudview.charater
+    </select>
 </mapper>

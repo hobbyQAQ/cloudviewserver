@@ -52,4 +52,5 @@ public interface CharaterService {
      */
     boolean deleteById(Integer id);
 
+    List<Charater> getAll();
 }

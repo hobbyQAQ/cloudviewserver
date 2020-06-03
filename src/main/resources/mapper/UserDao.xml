@@ -81,4 +81,8 @@
         delete from cloudview.user where id = #{id}
     </delete>
 
+
+    <select id="queryByAccount" resultMap="UserMap">
+        select * from user where user.account = #{account}
+    </select>
 </mapper>

@@ -76,4 +76,9 @@ public class CharaterServiceImpl implements CharaterService {
     public boolean deleteById(Integer id) {
         return this.charaterDao.deleteById(id) > 0;
     }
+
+    @Override
+    public List<Charater> getAll() {
+        return charaterDao.getAll();
+    }
 }

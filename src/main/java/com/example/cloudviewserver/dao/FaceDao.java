@@ -65,4 +65,6 @@ public interface FaceDao {
     int deleteByPid(Integer pid);
 
     Face queryByPid(Integer pid);
+
+    List<Face> getFacelistByCid(int cid);
 }

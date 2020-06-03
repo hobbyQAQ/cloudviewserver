@@ -31,6 +31,11 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public List<Photo> getPhotoByType0() {
+        return photoDao.getPhotoByType0();
+    }
+
+    @Override
     public void insertPhotomapper(Photomapper photomapper) {
         this.photomapperDao.insert(photomapper);
     }

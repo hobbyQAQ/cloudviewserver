@@ -36,6 +36,13 @@
         from cloudview.face
     </select>
 
+    <select id="getFacelistByCid" parameterType="Integer" resultMap="FaceMap">
+        select  face.face_token, `left`, top, width, height, pid, rotation, path
+         from face,facemapper
+         where cid = #{cid}
+        and face.face_token = facemapper.face_token
+    </select>
+
     <!--新增所有列-->
     <insert id="insert" keyProperty="faceToken">
         insert into cloudview.face

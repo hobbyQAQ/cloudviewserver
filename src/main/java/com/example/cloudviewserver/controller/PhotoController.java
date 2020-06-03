@@ -1,6 +1,7 @@
 package com.example.cloudviewserver.controller;
 
 import com.example.cloudviewserver.entity.*;
+import com.example.cloudviewserver.entity.domain.AddFaceResult;
 import com.example.cloudviewserver.entity.domain.DetectResult;
 import com.example.cloudviewserver.entity.domain.FaceListResult;
 import com.example.cloudviewserver.entity.domain.MatchResult;
@@ -247,14 +248,22 @@ public class PhotoController {
         return Result.success("删除成功");
     }
 
+    /**
+     * 通过人脸获取相片
+     * @param cid
+     * @param session
+     * @return
+     */
     @GetMapping("get/by/face")
     private Result getPhotoByCharater(@RequestParam("cid") Integer cid,HttpSession session) {
         int uid = 1;
-        //已有faceToken数据
-        //查询和此faceToken匹配的所有人脸的faceToken，得到一个List<String> faceTokens
-        //通过face表就可以查询到匹配人脸的所有相片
-        //直接faceMapper中取就好了
         return  photoService.getPhotoByCid(cid, uid);
+    }
+
+    @GetMapping("get/scenery")
+    private Result getScenery(HttpSession session) {
+        int uid = 1;
+        return  Result.success(photoService.getPhotoByType0());
     }
 
     /**
@@ -265,6 +274,7 @@ public class PhotoController {
      */
     private boolean updateDatabase(String absolutePath, Integer id) {
         //更新photo、photomapper 、face数据库
+
         DetectResult detectResult = faceService.faceDetect(absolutePath);
         Photo photo = null;
         if (detectResult.getError_code()==0) {
@@ -313,46 +323,51 @@ public class PhotoController {
                     bufferedImage = PhotoUtil.img_rotation(bufferedImage, -90);
                 }
 
-                //如果有旋转角，将脸旋转回来
                 String faceToken = face.getFaceToken();
                 String destPath = baseUploadPath+"face/"+id+"/"+faceToken+".jpg";
                 face.setPath(PhotoUtil.getFacePath(destPath));
                 PhotoUtil.img2file(bufferedImage,"jpg",destPath);
                 faceService.insert(face);
-                //将人脸上传至人脸库
+
                 FaceListResult faceListFromBaidu = faceService.getFaceListFromBaidu();
-                if (faceListFromBaidu == null) {
-                    return false;
+                List<FaceListResult.ResultBean.FaceListBean> face_list_match = faceListFromBaidu.getResult().getFace_list();
+                if (faceListFromBaidu.getResult().getFace_list() != null) {
+
                 }
-                List<FaceListResult.ResultBean.FaceListBean> face_list1 = faceListFromBaidu.getResult().getFace_list();
-                if (face_list1.size() == 0){
+                if (face_list_match.size() == 0){
                     Charater charater = new Charater();
                     charater = charaterService.insert(charater);
                     facemapperService.insert(new Facemapper(charater.getId(),face.getFaceToken()));
                 }
                 int theSameFace = -1;
-                for (int i = 0; i < face_list1.size(); i++) {
+                for (int i = 0; i < face_list_match.size(); i++) {
                     // match face
-                    MatchResult matchResult = faceService.matchFace(face.getFaceToken(), face_list1.get(i).getFace_token());
+                    MatchResult matchResult = faceService.matchFace(face.getFaceToken(), face_list_match.get(i).getFace_token());
+
                     if (matchResult.getScore() >= 80) {
                         theSameFace = i;
-
+                        break;
                     }
                 }
                 if (theSameFace<0){
                     //如果人脸库中没有相同人脸，则新建一个charater，把charater的id和face的facetoken记录到faceMapper中
                     Charater charater = new Charater();
                     charater = charaterService.insert(charater);
+                    charater.setName("未命名"+charater.getId());
+                    charater = charaterService.update(charater);
                     facemapperService.insert(new Facemapper(charater.getId(), face.getFaceToken()));
                 }else{
                     //如果有匹配的人脸，则把人脸和相同人脸的人物记录到faceMapper
-                    Facemapper facemapper = facemapperService.queryByFaceToken(face_list1.get(theSameFace).getFace_token());
+                    Facemapper facemapper = facemapperService.queryByFaceToken(face_list_match.get(theSameFace).getFace_token());
                     if (facemapper != null) {
                         Facemapper newFacemapper = new Facemapper(facemapper.getCid(),face.getFaceToken());
+                        facemapperService.insert(newFacemapper);
                     }else{
                         System.err.println("查询失败，映射表中没有该人脸");
                     }
                 }
+                //将人脸上传至人脸库
+                AddFaceResult addFaceResult = faceService.faceAdd2Baidu(absolutePath, 1, 1);
             }
         }else{
             photo = new Photo();

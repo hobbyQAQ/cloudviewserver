@@ -3,10 +3,7 @@ package com.example.cloudviewserver.service.impl;
 import com.alibaba.druid.support.json.JSONUtils;
 import com.example.cloudviewserver.entity.Face;
 import com.example.cloudviewserver.dao.FaceDao;
-import com.example.cloudviewserver.entity.domain.DetectResult;
-import com.example.cloudviewserver.entity.domain.FaceListResult;
-import com.example.cloudviewserver.entity.domain.FaceMatch;
-import com.example.cloudviewserver.entity.domain.MatchResult;
+import com.example.cloudviewserver.entity.domain.*;
 import com.example.cloudviewserver.service.FaceService;
 import com.example.cloudviewserver.utils.*;
 import org.springframework.stereotype.Service;
@@ -57,6 +54,11 @@ public class FaceServiceImpl implements FaceService {
     @Override
     public List<Face> queryAll() {
         return faceDao.queryAll();
+    }
+
+    @Override
+    public List<Face> getFaceListByCid(int cid) {
+        return faceDao.getFacelistByCid(cid);
     }
 
     /**
@@ -131,12 +133,17 @@ public class FaceServiceImpl implements FaceService {
     }
 
     @Override
+    public AddFaceResult addFace(String path) {
+        return null;
+    }
+
+    @Override
     public FaceListResult getFaceListFromBaidu() {
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/face/getlist";
         FaceListResult faceListResult = null;
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("user_id", "user01");
+            map.put("user_id", "1");
             map.put("group_id", "1");
 
             String param = GsonUtils.toJson(map);
@@ -158,7 +165,7 @@ public class FaceServiceImpl implements FaceService {
     }
 
     @Override
-    public String faceAdd2Baidu(String filePath , Integer uid, Integer cid) {
+    public AddFaceResult faceAdd2Baidu(String filePath , Integer uid, Integer cid) {
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add";
         String image = Base64ImageUtil.GetImageStrFromPath(filePath);
         Map<String, Object> map = new HashMap<>();

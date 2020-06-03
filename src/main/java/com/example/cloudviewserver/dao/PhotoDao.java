@@ -77,4 +77,6 @@ public interface PhotoDao {
     List<Photo> selectAll();
 
     List<Photo> getPhotoByCid(@Param("cid") int cid,@Param("uid") int uid);
+
+    List<Photo> getPhotoByType0();
 }

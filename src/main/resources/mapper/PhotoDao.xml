@@ -99,4 +99,9 @@
          and photo.id =photomapper.pid
          and photomapper.uid = #{uid}
     </select>
+
+    <!--    查找没有人脸的photo-->
+    <select id="getPhotoByType0"  resultType="Photo">
+        SELECT photo.* FROM photo where type = 0
+    </select>
 </mapper>

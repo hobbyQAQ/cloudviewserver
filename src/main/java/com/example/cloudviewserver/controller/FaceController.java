@@ -3,6 +3,7 @@ package com.example.cloudviewserver.controller;
 import com.example.cloudviewserver.entity.Charater;
 import com.example.cloudviewserver.entity.Face;
 import com.example.cloudviewserver.entity.Facemapper;
+import com.example.cloudviewserver.entity.domain.Face2;
 import com.example.cloudviewserver.service.CharaterService;
 import com.example.cloudviewserver.service.FaceService;
 import com.example.cloudviewserver.service.FacemapperService;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Face)表控制层
@@ -62,6 +66,21 @@ public class FaceController {
         return Result.success(faces);
     }
 
+    @GetMapping("get/sort")
+    public Result getSortFace(HttpSession session){
+        // TODO: 2020/5/4 从session获取用户id
+        int uid = 1;
+
+        List<Face2> SortFaces = new ArrayList<>();
+        List<Charater> charaters = charaterService.getAll();
+        for (Charater charater : charaters) {
+            List<Face> faces = faceService.getFaceListByCid(charater.getId());
+            SortFaces.add(new Face2(charater.getId(),charater.getName(),faces));
+        }
+        return Result.success(SortFaces);
+    }
+
+
 
 
     /**
@@ -75,7 +94,6 @@ public class FaceController {
         // TODO: 2020/5/4 从session获取用户id
         Result<Face> faceResult = faceService.queryById(faceToken);
         Face data = faceResult.getData();
-
         Facemapper facemapper = facemapperService.queryByFaceToken(faceToken);
         Charater charater = charaterService.queryById(facemapper.getCid());
         charater.setName(faceName);

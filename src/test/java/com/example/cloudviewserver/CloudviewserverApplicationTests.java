@@ -165,18 +165,18 @@ class CloudviewserverApplicationTests {
         }
     }
 
-
+//{"error_code":222202,"error_msg":"pic not has face","log_id":8910115756545,"timestamp":1590901723,"cached":0,"result":null}
     @Test
     public void faceAddAll() {
         // 请求url
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add";
-        List<Photo> photos = photoDao.selectAll();
+//        List<Photo> photos = photoDao.selectAll();
         try {
-            String path = "D:\\yunyin\\upload\\photo\\1";
-            for (int i = 0; i < photos.size(); i++) {
-                String filePath = path + photos.get(i).getPath();
-                System.out.println(i + "===>" + filePath);
-                String image = Base64ImageUtil.GetImageStrFromPath(filePath);
+            String path = "D:/yunyin/upload/photo/1/IMG_20200512_183141.jpg";
+//            for (int i = 0; i < photos.size(); i++) {
+//                String filePath = path + photos.get(i).getPath();
+//                System.out.println(i + "===>" + filePath);
+                String image = Base64ImageUtil.GetImageStrFromPath(path);
                 Map<String, Object> map = new HashMap<>();
                 map.put("image", image);
                 map.put("group_id", "1");
@@ -184,13 +184,13 @@ class CloudviewserverApplicationTests {
                 map.put("max_face_num", 7);
                 map.put("liveness_control", "NONE");
                 map.put("image_type", "BASE64");
-                map.put("quality_control", "HIGH");
+                map.put("quality_control", "LOW");
                 String param = GsonUtils.toJson(map);
                 // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
                 String accessToken = Constants.ACCESS_TOKEN;
                 String result = HttpUtil.post(url, accessToken, "application/json", param);
                 System.out.println(result);
-            }
+//            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,7 +239,7 @@ class CloudviewserverApplicationTests {
         String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/face/getlist";
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("user_id", "user01");
+            map.put("user_id", "1");
             map.put("group_id", "1");
 
             String param = GsonUtils.toJson(map);
