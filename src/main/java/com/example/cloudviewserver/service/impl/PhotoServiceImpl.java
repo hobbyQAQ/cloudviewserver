@@ -30,9 +30,55 @@ public class PhotoServiceImpl implements PhotoService {
         return Result.success(photoDao.getPhotoByCid(cid,uid));
     }
 
+    /**
+     * 获取Type0的照片
+     * @return
+     */
     @Override
     public List<Photo> getPhotoByType0() {
         return photoDao.getPhotoByType0();
+    }
+
+    @Override
+    public List<Photo> getPhotoByType2() {
+        return photoDao.getPhotoByType2();
+    }
+
+    @Override
+    public List<Photo> getPhotoByType3() {
+        return photoDao.getPhotoByType3();
+    }
+
+    /**
+     * 将pid的照片添加到收藏
+     *
+     * @param pid
+     * @param isLove
+     * @return
+     */
+    @Override
+    public boolean addLove(Integer pid, Integer isLove) {
+        if (photoDao.addLove(pid,isLove) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Photo> getLoves(Integer uid) {
+        return photoDao.getLoves(uid);
+    }
+
+
+    /**
+     * 模糊查询
+     * @param keyword
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<Photo> searchByKeyword(String keyword, Integer uid) {
+        return photoDao.searchByKeyword(keyword,uid);
     }
 
     @Override

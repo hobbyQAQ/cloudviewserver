@@ -66,6 +66,11 @@ public class FaceController {
         return Result.success(faces);
     }
 
+    /**
+     * 返回不同人物的人脸集
+     * @param session
+     * @return
+     */
     @GetMapping("get/sort")
     public Result getSortFace(HttpSession session){
         // TODO: 2020/5/4 从session获取用户id
@@ -79,6 +84,8 @@ public class FaceController {
         }
         return Result.success(SortFaces);
     }
+
+
 
 
 

@@ -6,6 +6,66 @@
 
 http://192.168.0.2（目前没有服务器本地测试用的）
 
+#### 登录
+
+方法：get
+
+接口：/user/login
+
+参数：account
+
+​			password
+
+返回 
+
+```
+{
+    "success": true,
+    "msg": "OK",
+    "data": {
+        "id": 1,
+        "account": "942449150",
+        "password": "123456",
+        "nickname": "头铁的小伙子",
+        "coverPath": "cover/1/pic_5.jpeg"
+    }
+}
+```
+
+
+
+
+
+#### 上传头像
+
+方法：post
+
+接口：/user/upload
+
+参数：uid（用户id）
+
+​			file 头像文件
+
+返回 
+
+```
+{
+    "success": true,
+    "msg": "OK",
+    "data": {
+        "id": 1,
+        "account": "942449150",
+        "password": "123456",
+        "nickname": "头铁的小伙子",
+        "coverPath": "cover/1/pic_5.jpeg"
+    }
+}
+```
+
+
+
+
+
 #### 获取所有照片
 
 方法：get

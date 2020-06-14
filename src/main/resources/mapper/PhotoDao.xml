@@ -13,7 +13,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="PhotoMap">
         select
-          id, date, location, path, type
+          photo.*
         from cloudview.photo
         where id = #{id}
     </select>
@@ -21,7 +21,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="PhotoMap">
         select
-          id, date, location, path, type
+          photo.*
         from cloudview.photo
         limit #{offset}, #{limit}
     </select>
@@ -29,7 +29,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="PhotoMap">
         select
-          id, date, location, path, type
+          photo.*
         from cloudview.photo
         <where>
             <if test="id != null">
@@ -52,8 +52,8 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into cloudview.photo(date, location, path, type)
-        values (#{date}, #{location}, #{path},#{type})
+        insert into cloudview.photo(date, location, path, type,love)
+        values (#{date}, #{location}, #{path},#{type},0)
     </insert>
 
     <!--通过主键修改数据-->
@@ -70,7 +70,10 @@
                 path = #{path},
             </if>
             <if test="type != null">
-            type = #{type},
+                type = #{type},
+            </if>
+            <if test="love != null">
+                love = #{love},
             </if>
         </set>
         where id = #{id}
@@ -100,8 +103,57 @@
          and photomapper.uid = #{uid}
     </select>
 
-    <!--    查找没有人脸的photo-->
+    <!--    查找风景照    -->
     <select id="getPhotoByType0"  resultType="Photo">
         SELECT photo.* FROM photo where type = 0
     </select>
+
+
+    <!--    查找动物照    -->
+    <select id="getPhotoByType2"  resultType="Photo">
+        SELECT photo.* FROM photo where type = 2
+    </select>
+
+    <!--    查找动物照    -->
+    <select id="getPhotoByType3"  resultType="Photo">
+        SELECT photo.* FROM photo where type = 3
+    </select>
+
+<!--    or convert(photo.date,DATETIME) like concat('%',#{keyword},'%')-->
+<!--    or photo.location like concat('%',#{keyword},'%')-->
+    <select id="searchByKeyword" resultType="Photo">
+        select distinct photo.* from
+        photo,photomapper
+        where convert(photo.date,DATETIME) like concat(#{keyword},'%')
+        or photo.`location` like concat('%',#{keyword},'%')
+        and photomapper.uid = #{uid}
+        and photo.id = photomapper.pid
+    </select>
+
+    <select id="searchByCharater" parameterType="String" resultType="Photo">
+        select distinct photo.* from
+        charater,facemapper,face,photo,photomapper
+        where charater.`name` like concat('%',#{keyword},'%')
+        or convert(photo.date,DATETIME) like concat(#{keyword},'%')
+        or photo.`location` like concat('%',#{keyword},'%')
+        and charater.id = facemapper.cid
+        and facemapper.face_token = face.face_token
+        and face.pid = photo.id
+        and photomapper.uid = #{uid}
+        and photo.id = photomapper.pid
+    </select>
+
+    <update id="addLove" parameterType="Integer">
+        update cloudview.photo
+        set love = #{isLove}
+        where id = #{pid}
+    </update>
+
+    <select id="getLoves" parameterType="int" resultType="Photo">
+        select photo.* from photo,photomapper
+        where love = 1
+        and photo.id = photomapper.pid
+        and photomapper.uid = #{uid}
+    </select>
+
 </mapper>

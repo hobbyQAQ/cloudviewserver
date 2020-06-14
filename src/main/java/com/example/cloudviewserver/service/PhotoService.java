@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface PhotoService {
 
+    List<Photo> searchByKeyword(String keyword,Integer uid);
+
     void insertPhotomapper(Photomapper photomapper);
 
     /**
@@ -63,4 +65,12 @@ public interface PhotoService {
     Result getPhotoByCid(int cid, int uid);
 
     List<Photo> getPhotoByType0();
+
+    List<Photo> getPhotoByType2();
+
+    List<Photo> getPhotoByType3();
+
+    boolean addLove(Integer pid, Integer isLove);
+
+    List<Photo> getLoves(Integer uid);
 }

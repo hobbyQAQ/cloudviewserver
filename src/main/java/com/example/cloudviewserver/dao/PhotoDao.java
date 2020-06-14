@@ -79,4 +79,14 @@ public interface PhotoDao {
     List<Photo> getPhotoByCid(@Param("cid") int cid,@Param("uid") int uid);
 
     List<Photo> getPhotoByType0();
+
+    List<Photo> getPhotoByType2();
+
+    List<Photo> getPhotoByType3();
+
+    List<Photo> searchByKeyword(@Param("keyword") String keyword, @Param("uid") Integer uid);
+
+    int addLove(@Param("pid")Integer pid,@Param("isLove") Integer isLove);
+
+    List<Photo> getLoves(@Param("uid")Integer uid);
 }

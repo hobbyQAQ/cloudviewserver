@@ -30,6 +30,10 @@ public class PhotoUtil {
         return absolutePath.replace("\\", "/").replace("D:/yunyin/upload/", "");
     }
 
+    public static String getCoverPath(String absolutePath) {
+        return absolutePath.replace("\\", "/").replace("D:/yunyin/upload/", "");
+    }
+
     public static String Path2Name(String path, Integer uid) {
         return path.replace("photo/" + uid + "/", "");
     }

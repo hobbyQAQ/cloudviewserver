@@ -86,6 +86,40 @@ public class PhotoController {
     }
 
     /**
+     * 模糊查询
+     * @param keyword 关键字
+     * @param uid
+     * @return
+     */
+    @GetMapping("search")
+    public Result<List<Photo>> searchByKeyword(@RequestParam("keyword")String keyword,@RequestParam("uid")Integer uid){
+        return Result.success(photoService.searchByKeyword(keyword,uid));
+    }
+
+    @GetMapping("add/love")
+    public Result addLove(@RequestParam("pid")Integer pid,@RequestParam("uid")Integer uid){
+        Photo photo = photoService.queryById(pid);
+        if (photo != null) {
+            if (photo.getLove() == 0) {
+                if (photoService.addLove(pid,1)) {
+                    return Result.success("添加成功");
+                }
+            }else{
+                if (photoService.addLove(pid,0)) {
+                    return Result.success("取消成功");
+                }
+            }
+        }
+        return Result.success("请求失败");
+    }
+
+    @GetMapping("get/loves")
+    public Result<List<Photo>> getLoves(@RequestParam("uid")Integer uid){
+
+        return Result.success(photoService.getLoves(uid));
+    }
+
+    /**
      * 文件下载
      * @param pid 照片id
      * @return
@@ -264,6 +298,18 @@ public class PhotoController {
     private Result getScenery(HttpSession session) {
         int uid = 1;
         return  Result.success(photoService.getPhotoByType0());
+    }
+
+    @GetMapping("get/animals")
+    private Result getAnimals(HttpSession session) {
+        int uid = 1;
+        return  Result.success(photoService.getPhotoByType2());
+    }
+
+    @GetMapping("get/certificates")
+    private Result getCertificates(HttpSession session) {
+        int uid = 1;
+        return  Result.success(photoService.getPhotoByType3());
     }
 
     /**

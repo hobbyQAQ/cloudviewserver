@@ -29,9 +29,19 @@ public class Photo implements Serializable {
     private String path;
 
     /**
-     * 是否有人脸，0无，1有
+     * 照片类型 0 风景 1 人物 2 动物 3 证件
      */
     private Integer type;
+
+    private Integer love;
+
+    public Integer getLove() {
+        return love;
+    }
+
+    public void setLove(Integer love) {
+        this.love = love;
+    }
 
     public Integer getType() {
         return type;
